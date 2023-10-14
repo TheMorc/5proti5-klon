@@ -33,15 +33,16 @@ class Question:
     self.points2 = points2
     self.points3 = points3
 
-q1 = Question("mačka", "pes", "korytmačk", 30, 20, 10)
-q2 = Question("lavica", "strom", "dom", 30, 20, 10)
+q0 = Question("N/A", "N/A", "N/A", 0, 0, 0)
+q1 = Question("mačka", "pes", "korytmačk", 3, 2, 1)
+q2 = Question("lavica", "strom", "dom", 15, 10, 5)
 q3 = Question("nighthawk", "purple motion", "realairforce", 30, 20, 10)
-q4 = Question("modrá","zelený","hnedo", 30, 20, 10)
-q5 = Question("abaddon","ripcord","discord", 30, 20, 10)
+q4 = Question("modrá","zelený","hnedo", 45, 30, 15)
+q5 = Question("abaddon","ripcord","discord", 60, 40, 20)
 
-questions = [q1, q2, q3, q4, q5]
+questions = [q0, q1, q2, q3, q4, q5]
 
-question_current = 0
+question_current = 1
 question_side = 0
 blue_points = 0
 green_points = 0
@@ -61,7 +62,7 @@ while running:
 		pygame.display.toggle_fullscreen()
 		
 	if keys[pygame.K_a]:
-		if not question_1_shown:
+		if not question_1_shown and question_side != 0:
 			audio3_channel.play(correct_snd)
 			question_1_shown = True
 			if question_side == 1:
@@ -70,7 +71,7 @@ while running:
 				green_points = green_points + questions[question_current].points2
 			
 	if keys[pygame.K_s]:
-		if not question_2_shown:
+		if not question_2_shown and question_side != 0:
 			audio3_channel.play(correct_snd)
 			question_2_shown = True
 			if question_side == 1:
@@ -79,13 +80,13 @@ while running:
 				green_points = green_points + questions[question_current].points2
 		
 	if keys[pygame.K_d]:
-		if not question_3_shown:
+		if not question_3_shown and question_side != 0:
 			audio3_channel.play(correct_snd)
 			question_3_shown = True
 			if question_side == 1:
 				blue_points = blue_points + questions[question_current].points3
 			elif question_side == 2:
-				green_points = green_points + questions[question_current].points2
+				green_points = green_points + questions[question_current].points3
 			
 	if keys[pygame.K_x]:
 		audio_channel.play(wrong_snd)
