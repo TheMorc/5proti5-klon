@@ -3,8 +3,8 @@ import pygame
 pygame.init()
 
 font = pygame.font.Font("Myriad.ttf", 36)
-projector_width, projector_height = 1024, 768
-screen = pygame.display.set_mode((projector_width, projector_height))
+projector_width, projector_height = 1280, 960
+screen = pygame.display.set_mode((projector_width, projector_height), pygame.SCALED)
 bg_color = (0x18, 0x23, 0x2D)
 
 spsse_logo = pygame.image.load("spsse.png")
@@ -23,6 +23,9 @@ while running:
 			running = False
 	
 	keys = pygame.key.get_pressed()
+	if keys[pygame.K_ESCAPE]:
+		pygame.display.toggle_fullscreen()
+		
 	if keys[pygame.K_a]:
 		audio_channel.play(correct_snd)
 		
@@ -38,7 +41,7 @@ while running:
 	if keys[pygame.K_p]:
 		audio_channel.play(prompt_snd)
 		
-	if keys[pygame.K_q]:
+	if keys[pygame.K_RETURN]:
 		audio_channel.play(question_snd)
 	
 	screen.fill(bg_color)
