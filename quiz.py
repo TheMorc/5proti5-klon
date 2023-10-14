@@ -4,12 +4,13 @@ pygame.init()
 
 ser = serial.Serial('/dev/tty.usbmodem1201', 9600)
 
-font = pygame.font.Font("Myriad.ttf", 36)
+font = pygame.font.Font("MyriadBold.ttf", 66)
+font2 = pygame.font.Font("Myriad.ttf", 86)
 projector_width, projector_height = 1280, 960
 screen = pygame.display.set_mode((projector_width, projector_height), pygame.SCALED)
 bg_color = (0x18, 0x23, 0x2D)
 
-spsse_logo = pygame.image.load("spsse.png")
+spsse_logo = pygame.image.load("spsse370.png")
 
 audio_channel = pygame.mixer.Channel(0)
 audio2_channel = pygame.mixer.Channel(1)
@@ -20,9 +21,22 @@ prompt_snd = pygame.mixer.Sound("prompt.mp3")
 question_snd = pygame.mixer.Sound("question.mp3")
 buzzer_snd = pygame.mixer.Sound("buzzer.mp3")
 
+class Question:
+  def __init__(self, text1, text2, text3):
+    self.text1 = text1
+    self.text2 = text2
+    self.text3 = text3
+
+q1 = Question("mačka", "pes", "korytmačka")
+q2 = Question("lavica", "strom", "dom")
+q3 = Question("nighthawk", "purple motion", "realairforce")
+q4 = Question("modrá","zelený","hnedo")
+q5 = Question("abaddon","ripcord","discord")
+
+questions = [q1, q2, q3, q4, q5]
+
 question_side = 0
 question_reset = True
-
 question_1_shown = False
 question_2_shown = False
 question_3_shown = False
@@ -83,11 +97,11 @@ while running:
 	
 	screen.fill(bg_color)
 	
-	text = font.render("Hello, Pygame!", True, (255, 255, 255))
-	screen.blit(text, (200, 200, 50, 50))
+	text = font.render("Otázka č.1", True, (255, 255, 255))
+	screen.blit(text, (900, 64))
 	
 	# Draw an image
-	screen.blit(spsse_logo, (300, 300))
+	screen.blit(spsse_logo, (40, 40))
 	
 	pygame.display.flip()
 	
