@@ -1,8 +1,18 @@
 import pygame, serial, math
 
 pygame.init()
+clock = pygame.time.Clock()
 
 ser = serial.Serial('/dev/tty.usbmodem1201', 9600)
+
+font = pygame.font.Font("Myriad.ttf", 66)
+font_b = pygame.font.Font("MyriadBold.ttf", 66)
+font_i = pygame.font.Font("MyriadItalic.ttf", 66)
+font2 = pygame.font.Font("Myriad.ttf", 86)
+font2_b = pygame.font.Font("MyriadBold.ttf", 86)
+projector_width, projector_height = 1280, 960
+screen = pygame.display.set_mode((projector_width, projector_height), pygame.SCALED)
+bg_color = (0x18, 0x23, 0x2D)
 
 #ďakujem honzai, aj keď dostal som to od teba dosrané :trol:
 class AnimatedRectangle:
@@ -14,20 +24,22 @@ class AnimatedRectangle:
 		self.text = text
 		self.animation_duration = animation_duration
 		self.start_time = pygame.time.get_ticks()
+		self.text_rendered = False
+		self.tx_alpha = 0
 
 	def ease_in_out_sine(self, t):
 		return (1 - math.cos(t * math.pi)) / 2
 
 	def reset(self):
 		self.start_time = pygame.time.get_ticks()
-
+		self.text_rendered = False
+	
 	def update(self):
 		current_time = pygame.time.get_ticks()
 		time_elapsed = current_time - self.start_time
 		
 		if time_elapsed >= self.animation_duration:
 			time_elapsed = self.animation_duration
-			self.animation_complete = True
 		
 		alpha = int((time_elapsed / self.animation_duration) * 255)
 		
@@ -38,19 +50,20 @@ class AnimatedRectangle:
 		pygame.draw.rect(surface, (67, 224, 234, alpha), (0, 0, self.width, self.height))
 		screen.blit(surface, (self.x, self.y - slide_amount))
 		
-		font = pygame.font.Font(None, 36)
-		text_surface = font.render(self.text, True, (255,255,255))
-		text_rect = text_surface.get_rect(center=(self.x + self.width / 2, self.y - slide_amount + self.height / 2))
-		screen.blit(text_surface, text_rect)
-
-font = pygame.font.Font("Myriad.ttf", 66)
-font_b = pygame.font.Font("MyriadBold.ttf", 66)
-font_i = pygame.font.Font("MyriadItalic.ttf", 66)
-font2 = pygame.font.Font("Myriad.ttf", 86)
-font2_b = pygame.font.Font("MyriadBold.ttf", 86)
-projector_width, projector_height = 1280, 960
-screen = pygame.display.set_mode((projector_width, projector_height), pygame.SCALED)
-bg_color = (0x18, 0x23, 0x2D)
+		if self.text_rendered:
+			text_surface = font2_b.render(self.text, True, (0,0,0))
+			txt_surf = text_surface.copy()
+			alpha_surf = pygame.Surface(txt_surf.get_size(), pygame.SRCALPHA)
+			
+			text_rect = text_surface.get_rect(center=(self.x + self.width / 2, self.y - slide_amount + self.height / 2))
+			if not self.tx_alpha >= 252:
+				print(self.tx_alpha)
+				self.tx_alpha = max(self.tx_alpha+4, 0)
+				txt_surf = text_surface.copy()
+				alpha_surf.fill((255, 255, 255, self.tx_alpha))
+				txt_surf.blit(alpha_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+			
+			screen.blit(txt_surf, text_rect)
 
 spsse_logo = pygame.image.load("spsse370.png")
 
@@ -106,30 +119,33 @@ while running:
 		
 	if keys[pygame.K_a]:
 		if not question_1_shown and question_side != 0:
-			audio3_channel.play(correct_snd)
+			audio3_channel.play(prompt_snd)
 			question_1_shown = True
 			if question_side == 1:
 				blue_points = blue_points + questions[question_current].points1
 			elif question_side == 2:
 				green_points = green_points + questions[question_current].points2
+			animated_rect.text_rendered = True
 			
 	if keys[pygame.K_s]:
 		if not question_2_shown and question_side != 0:
-			audio3_channel.play(correct_snd)
+			audio3_channel.play(prompt_snd)
 			question_2_shown = True
 			if question_side == 1:
 				blue_points = blue_points + questions[question_current].points2
 			elif question_side == 2:
 				green_points = green_points + questions[question_current].points2
+			animated_rect2.text_rendered = True
 		
 	if keys[pygame.K_d]:
 		if not question_3_shown and question_side != 0:
-			audio3_channel.play(correct_snd)
+			audio3_channel.play(prompt_snd)
 			question_3_shown = True
 			if question_side == 1:
 				blue_points = blue_points + questions[question_current].points3
 			elif question_side == 2:
 				green_points = green_points + questions[question_current].points3
+			animated_rect3.text_rendered = True
 			
 	if keys[pygame.K_x]:
 		audio_channel.play(wrong_snd)
@@ -150,22 +166,7 @@ while running:
 	if keys[pygame.K_p]:
 		audio_channel.play(prompt_snd)
 	
-	if keys[pygame.K_RETURN] and question_current == 0:
-		ser.write("0".encode())
-		question_reset = True
-		question_1_shown = False
-		question_2_shown = False
-		question_3_shown = False
-		animated_rect.reset()
-		animated_rect.text = questions[question_current].text1
-		animated_rect2.reset()
-		animated_rect2.text = questions[question_current].text2
-		animated_rect3.reset()
-		animated_rect3.text = questions[question_current].text3
-		question_side = 0
-		question_current = question_current + 1
-		
-	if keys[pygame.K_RETURN] and not question_reset:
+	if keys[pygame.K_RETURN] and (question_current == 0 or not question_reset):
 		audio_channel.play(question_snd)
 		ser.write("0".encode())
 		question_reset = True
@@ -180,7 +181,7 @@ while running:
 		animated_rect3.text = questions[question_current].text3
 		question_side = 0
 		question_current = question_current + 1
-	
+		
 	screen.fill(bg_color)
 	
 	question_num_text = font_b.render("Otázka č. "+str(question_current), True, (255, 255, 255))
@@ -206,6 +207,7 @@ while running:
 		animated_rect3.update()
 	
 	pygame.display.flip()
+	clock.tick(60)
 	
 ser.close()
 pygame.quit()
