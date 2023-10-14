@@ -24,14 +24,22 @@ void loop() {
   
   if (!button1State && !button2Lit && !button1Lit){
     button1Lit = 1;
-    Serial.print("1");
+    Serial.println("1");
     digitalWrite(8, 1);
   }
 
   if (!button2State && !button1Lit && !button2Lit){
     button2Lit = 1;
-    Serial.print("2");
+    Serial.println("2");
     digitalWrite(9, 1);
+  }
+
+  if (!button1State){
+    Serial.println("1");
+  }
+
+  if (!button2State){
+    Serial.println("2");
   }
   
   if (Serial.read() == '0'){
@@ -39,6 +47,5 @@ void loop() {
     digitalWrite(9, 0);
     button1Lit = 0;
     button2Lit = 0;
-    Serial.println("reset!");
   }
 }
