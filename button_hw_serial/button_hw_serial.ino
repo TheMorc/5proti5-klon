@@ -41,11 +41,46 @@ void loop() {
   if (!button2State){
     Serial.println("2");
   }
-  
-  if (Serial.read() == '0'){
+
+  char serialChar = Serial.read();
+  if (serialChar == '0'){
     digitalWrite(8, 0);
     digitalWrite(9, 0);
     button1Lit = 0;
     button2Lit = 0;
+  }
+  else if (serialChar == '3'){
+    digitalWrite(8, 1);
+    digitalWrite(9, 1);
+    delay(150);
+    digitalWrite(8, 0);
+    digitalWrite(9, 0);
+    delay(150);
+    digitalWrite(8, 1);
+    digitalWrite(9, 1);
+    delay(150);
+    digitalWrite(8, 0);
+    digitalWrite(9, 0);
+    delay(150);
+    digitalWrite(8, 1);
+    digitalWrite(9, 1);
+    delay(150);
+    digitalWrite(8, 0);
+    digitalWrite(9, 0);
+    delay(150);
+    digitalWrite(8, 1);
+    digitalWrite(9, 1);
+    delay(150);
+    digitalWrite(8, 0);
+    digitalWrite(9, 0);
+    delay(150);
+    digitalWrite(8, 1);
+    digitalWrite(9, 1);
+    delay(150);
+    digitalWrite(8, 0);
+    digitalWrite(9, 0);
+    delay(150);
+    digitalWrite(8, button1Lit);
+    digitalWrite(9, button2Lit);
   }
 }

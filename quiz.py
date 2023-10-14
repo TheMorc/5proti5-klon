@@ -1,6 +1,7 @@
 import pygame, serial, math
 
 pygame.init()
+screen = pygame.display.set_mode((1280, 960), pygame.SCALED)
 clock = pygame.time.Clock()
 
 ser = serial.Serial('/dev/tty.usbmodem1201', 9600)
@@ -10,8 +11,6 @@ font_b = pygame.font.Font("MyriadBold.ttf", 66)
 font_i = pygame.font.Font("MyriadItalic.ttf", 66)
 font2 = pygame.font.Font("Myriad.ttf", 86)
 font2_b = pygame.font.Font("MyriadBold.ttf", 86)
-projector_width, projector_height = 1280, 960
-screen = pygame.display.set_mode((projector_width, projector_height), pygame.SCALED)
 bg_color = (0x18, 0x23, 0x2D)
 
 #ďakujem honzai, aj keď dostal som to od teba dosrané :trol:
@@ -58,13 +57,73 @@ class AnimatedRectangle:
 			
 			text_rect = text_surface.get_rect(center=(self.x + self.width / 2, self.y - slide_amount + self.height / 2))
 			if not self.tx_alpha >= 252:
-				print(self.tx_alpha)
 				self.tx_alpha = max(self.tx_alpha+4, 0)
 				txt_surf = text_surface.copy()
 				alpha_surf.fill((255, 255, 255, self.tx_alpha))
 				txt_surf.blit(alpha_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
 			
 			screen.blit(txt_surf, text_rect)
+
+
+class AnimatedImage:
+	def __init__(self, x, y, image, animation_duration, fade_out_start):
+		self.x = x
+		self.y = y
+		self.image = image
+		self.animation_duration = animation_duration
+		self.fade_out_start = fade_out_start
+		self.start_time = pygame.time.get_ticks()
+		
+	def cubic_bezier(self, t, p0, p1, p2, p3):
+		u = 1 - t
+		tt = t * t
+		uu = u * u
+		uuu = uu * u
+		ttt = tt * t
+		
+		return (
+			uuu * p0 +
+			3 * uu * t * p1 +
+			3 * u * tt * p2 +
+			ttt * p3
+		)
+		
+	def update(self):
+		global wrong_pressed
+		
+		current_time = pygame.time.get_ticks()
+		time_elapsed = current_time - self.start_time
+		
+		if time_elapsed >= self.animation_duration:
+			time_elapsed = self.animation_duration
+			
+		alpha = int((time_elapsed / self.animation_duration) * 255)
+		
+		p0 = 1.0
+		p1 = 2
+		p2 = 1
+		p3 = 0.0
+		
+		scale = 1 + self.cubic_bezier(time_elapsed / self.animation_duration, p0, p1, p2, p3) * 0.5
+		
+		image_width, image_height = self.image.get_size()
+		scaled_image = pygame.transform.scale(self.image, (image_width*scale,image_height*scale))
+		
+		surface = pygame.Surface((scaled_image.get_width(), scaled_image.get_height()), pygame.SRCALPHA)
+		surface.blit(scaled_image, (0, 0), special_flags=pygame.BLEND_RGBA_ADD)
+	
+		if current_time - self.start_time > self.fade_out_start:
+			fade_out_duration = self.animation_duration - self.fade_out_start
+			fade_out_alpha = int(((current_time - self.start_time - self.fade_out_start) / fade_out_duration) * 255)
+			if fade_out_alpha > -255:
+				surface.set_alpha(255 + fade_out_alpha)
+			else:
+				surface.set_alpha(0)
+				wrong_pressed = False
+		
+		screen.blit(surface, (self.x - (surface.get_width() - image_width) / 2, self.y - (surface.get_height() - image_height) / 2))
+		
+
 
 spsse_logo = pygame.image.load("spsse370.png")
 
@@ -77,9 +136,15 @@ prompt_snd = pygame.mixer.Sound("prompt.mp3")
 question_snd = pygame.mixer.Sound("question.mp3")
 buzzer_snd = pygame.mixer.Sound("buzzer.mp3")
 
+#otázky
 animated_rect = AnimatedRectangle(40, 315, 1200, 110, "N/A", 1000)
 animated_rect2 = AnimatedRectangle(40, 470, 1200, 110, "N/A", 1000)
 animated_rect3 = AnimatedRectangle(40, 625, 1200, 110, "N/A", 1000)
+
+#wrong answer image
+image = pygame.image.load('wrong.png')
+animated_img = AnimatedImage(1280 / 2 - 192, 960 / 2 - 192, image, 333, 1000)
+wrong_pressed = False
 
 
 class Question:
@@ -148,21 +213,24 @@ while running:
 				green_points = green_points + questions[question_current].points3
 			animated_rect3.text_rendered = True
 			
-	if keys[pygame.K_x]:
-		audio_channel.play(wrong_snd)
-		
 	if (ser.inWaiting() > 0):
 		data_str = ser.read(ser.inWaiting()).decode('ascii') 
 		if "1" in data_str and question_reset and question_current != 0:
 			audio2_channel.play(buzzer_snd)
 			question_side = 1
 			question_reset = False
-			print("modri")
+			print("hrajú modri")
 		elif "2" in data_str and question_reset and question_current != 0:
 			audio2_channel.play(buzzer_snd)
 			question_side = 2
 			question_reset = False
-			print("zeleni")
+			print("hrajú zeleni")
+    
+	if keys[pygame.K_x] and not wrong_pressed:
+		ser.write("3".encode())
+		wrong_pressed = True
+		audio_channel.play(wrong_snd)
+		animated_img.start_time = pygame.time.get_ticks()    
         
 	if keys[pygame.K_p]:
 		audio_channel.play(prompt_snd)
@@ -185,6 +253,8 @@ while running:
 		animated_rect3.text = questions[question_current].text3
 		question_side = 0
 		question_current = question_current + 1
+		print("_______________\n"+str(question_current)+". kolo")
+		print()
 		
 	screen.fill(bg_color)
 	
@@ -210,6 +280,8 @@ while running:
 		animated_rect2.update()
 		animated_rect3.update()
 	
+	animated_img.update()
+    
 	pygame.display.flip()
 	clock.tick(60)
 	
