@@ -33,6 +33,7 @@ class AnimatedRectangle:
 	def reset(self):
 		self.start_time = pygame.time.get_ticks()
 		self.text_rendered = False
+		self.tx_alpha = 0
 	
 	def update(self):
 		current_time = pygame.time.get_ticks()
@@ -76,9 +77,9 @@ prompt_snd = pygame.mixer.Sound("prompt.mp3")
 question_snd = pygame.mixer.Sound("question.mp3")
 buzzer_snd = pygame.mixer.Sound("buzzer.mp3")
 
-animated_rect = AnimatedRectangle(40, 315, 1200, 110, "Animated", 1000)
-animated_rect2 = AnimatedRectangle(40, 470, 1200, 110, "Animated", 1000)
-animated_rect3 = AnimatedRectangle(40, 625, 1200, 110, "Animated", 1000)
+animated_rect = AnimatedRectangle(40, 315, 1200, 110, "N/A", 1000)
+animated_rect2 = AnimatedRectangle(40, 470, 1200, 110, "N/A", 1000)
+animated_rect3 = AnimatedRectangle(40, 625, 1200, 110, "N/A", 1000)
 
 
 class Question:
@@ -152,12 +153,12 @@ while running:
 		
 	if (ser.inWaiting() > 0):
 		data_str = ser.read(ser.inWaiting()).decode('ascii') 
-		if "1" in data_str and question_reset:
+		if "1" in data_str and question_reset and question_current != 0:
 			audio2_channel.play(buzzer_snd)
 			question_side = 1
 			question_reset = False
 			print("modri")
-		elif "2" in data_str and question_reset:
+		elif "2" in data_str and question_reset and question_current != 0:
 			audio2_channel.play(buzzer_snd)
 			question_side = 2
 			question_reset = False
@@ -165,6 +166,9 @@ while running:
         
 	if keys[pygame.K_p]:
 		audio_channel.play(prompt_snd)
+	
+	if question_current == 0:
+		ser.write("0".encode())
 	
 	if keys[pygame.K_RETURN] and (question_current == 0 or not question_reset):
 		audio_channel.play(question_snd)
@@ -184,8 +188,8 @@ while running:
 		
 	screen.fill(bg_color)
 	
-	question_num_text = font_b.render("Otázka č. "+str(question_current), True, (255, 255, 255))
-	screen.blit(question_num_text, (900, 64))
+	question_num_text = font_b.render(str(question_current)+". kolo", True, (255, 255, 255))
+	screen.blit(question_num_text, (960, 64))
 	
 	blue_text = font2_b.render("Modrí", True, (255, 255, 255))
 	green_text = font2_b.render("Zelení", True, (255, 255, 255))
