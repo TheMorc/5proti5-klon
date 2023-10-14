@@ -1,8 +1,47 @@
-import pygame, serial
+import pygame, serial, math
 
 pygame.init()
 
 ser = serial.Serial('/dev/tty.usbmodem1201', 9600)
+
+#ďakujem honzai, aj keď dostal som to od teba dosrané :trol:
+class AnimatedRectangle:
+	def __init__(self, x, y, width, height, text, animation_duration):
+		self.x = x
+		self.y = y
+		self.width = width
+		self.height = height
+		self.text = text
+		self.animation_duration = animation_duration
+		self.start_time = pygame.time.get_ticks()
+
+	def ease_in_out_sine(self, t):
+		return (1 - math.cos(t * math.pi)) / 2
+
+	def reset(self):
+		self.start_time = pygame.time.get_ticks()
+
+	def update(self):
+		current_time = pygame.time.get_ticks()
+		time_elapsed = current_time - self.start_time
+		
+		if time_elapsed >= self.animation_duration:
+			time_elapsed = self.animation_duration
+			self.animation_complete = True
+		
+		alpha = int((time_elapsed / self.animation_duration) * 255)
+		
+		slide_distance = (1280 - self.width) / 2
+		slide_amount = self.ease_in_out_sine(time_elapsed / self.animation_duration) * slide_distance
+
+		surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+		pygame.draw.rect(surface, (67, 224, 234, alpha), (0, 0, self.width, self.height))
+		screen.blit(surface, (self.x, self.y - slide_amount))
+		
+		font = pygame.font.Font(None, 36)
+		text_surface = font.render(self.text, True, (255,255,255))
+		text_rect = text_surface.get_rect(center=(self.x + self.width / 2, self.y - slide_amount + self.height / 2))
+		screen.blit(text_surface, text_rect)
 
 font = pygame.font.Font("Myriad.ttf", 66)
 font_b = pygame.font.Font("MyriadBold.ttf", 66)
@@ -24,6 +63,11 @@ prompt_snd = pygame.mixer.Sound("prompt.mp3")
 question_snd = pygame.mixer.Sound("question.mp3")
 buzzer_snd = pygame.mixer.Sound("buzzer.mp3")
 
+animated_rect = AnimatedRectangle(40, 315, 1200, 110, "Animated", 1000)
+animated_rect2 = AnimatedRectangle(40, 470, 1200, 110, "Animated", 1000)
+animated_rect3 = AnimatedRectangle(40, 625, 1200, 110, "Animated", 1000)
+
+
 class Question:
   def __init__(self, text1, text2, text3, points1, points2, points3):
     self.text1 = text1
@@ -33,16 +77,15 @@ class Question:
     self.points2 = points2
     self.points3 = points3
 
-q0 = Question("N/A", "N/A", "N/A", 0, 0, 0)
 q1 = Question("mačka", "pes", "korytmačk", 3, 2, 1)
 q2 = Question("lavica", "strom", "dom", 15, 10, 5)
 q3 = Question("nighthawk", "purple motion", "realairforce", 30, 20, 10)
 q4 = Question("modrá","zelený","hnedo", 45, 30, 15)
 q5 = Question("abaddon","ripcord","discord", 60, 40, 20)
 
-questions = [q0, q1, q2, q3, q4, q5]
+questions = [q1, q2, q3, q4, q5]
 
-question_current = 1
+question_current = 0
 question_side = 0
 blue_points = 0
 green_points = 0
@@ -106,6 +149,21 @@ while running:
         
 	if keys[pygame.K_p]:
 		audio_channel.play(prompt_snd)
+	
+	if keys[pygame.K_RETURN] and question_current == 0:
+		ser.write("0".encode())
+		question_reset = True
+		question_1_shown = False
+		question_2_shown = False
+		question_3_shown = False
+		animated_rect.reset()
+		animated_rect.text = questions[question_current].text1
+		animated_rect2.reset()
+		animated_rect2.text = questions[question_current].text2
+		animated_rect3.reset()
+		animated_rect3.text = questions[question_current].text3
+		question_side = 0
+		question_current = question_current + 1
 		
 	if keys[pygame.K_RETURN] and not question_reset:
 		audio_channel.play(question_snd)
@@ -114,6 +172,12 @@ while running:
 		question_1_shown = False
 		question_2_shown = False
 		question_3_shown = False
+		animated_rect.reset()
+		animated_rect.text = questions[question_current].text1
+		animated_rect2.reset()
+		animated_rect2.text = questions[question_current].text2
+		animated_rect3.reset()
+		animated_rect3.text = questions[question_current].text3
 		question_side = 0
 		question_current = question_current + 1
 	
@@ -135,6 +199,11 @@ while running:
 	screen.blit(green_points_text, green_text_rect)
 	
 	screen.blit(spsse_logo, (40, 40))
+	
+	if question_current != 0:
+		animated_rect.update()
+		animated_rect2.update()
+		animated_rect3.update()
 	
 	pygame.display.flip()
 	
