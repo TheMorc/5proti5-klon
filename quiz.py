@@ -148,7 +148,8 @@ wrong_pressed = False
 
 
 class Question:
-  def __init__(self, text1, text2, text3, points1, points2, points3):
+  def __init__(self, name, text1, text2, text3, points1, points2, points3):
+    self.name = name
     self.text1 = text1
     self.text2 = text2
     self.text3 = text3
@@ -156,11 +157,11 @@ class Question:
     self.points2 = points2
     self.points3 = points3
 
-q1 = Question("mačka", "pes", "korytmačk", 3, 2, 1)
-q2 = Question("lavica", "strom", "dom", 15, 10, 5)
-q3 = Question("nighthawk", "purple motion", "realairforce", 30, 20, 10)
-q4 = Question("modrá","zelený","hnedo", 45, 30, 15)
-q5 = Question("abaddon","ripcord","discord", 60, 40, 20)
+q1 = Question("Najobľúbenejšé zvieratko človeka", "mačka", "pes", "korytmačk", 3, 2, 1)
+q2 = Question("Čo vie narásť", "lavica", "strom", "dom", 15, 10, 5)
+q3 = Question("Modulátor", "nighthawk", "purple motion", "realairforce", 30, 20, 10)
+q4 = Question("Farby v živote", "modrá","zelený","hnedo", 45, 30, 15)
+q5 = Question("Meno klienta diskontu", "abaddon","ripcord","discord", 60, 40, 20)
 
 questions = [q1, q2, q3, q4, q5]
 
@@ -254,7 +255,10 @@ while running:
 		question_side = 0
 		question_current = question_current + 1
 		print("_______________\n"+str(question_current)+". kolo")
-		print()
+		print("otázka: " + questions[question_current].name)
+		print("[A] 1.: " + str(questions[question_current].points1) + "\t | " + questions[question_current].text1)
+		print("[S] 2.: " + str(questions[question_current].points2) + "\t | " + questions[question_current].text2)
+		print("[D] 3.: " + str(questions[question_current].points3) + "\t | " + questions[question_current].text3)
 		
 	screen.fill(bg_color)
 	
