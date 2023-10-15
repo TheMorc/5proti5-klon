@@ -80,8 +80,7 @@ class AnimatedRectangle:
 			txt_surf2 = text_surface2.copy()
 			alpha_surf2 = pygame.Surface(txt_surf2.get_size(), pygame.SRCALPHA)
 			
-			text_rect2 = text_surface2.get_rect(center=(self.x + self.width / 2, self.y - slide_amount + self.height / 2))
-			text_rect2 = (self.width-self.x-self.x, text_rect2.y)
+			text_rect2 = text_surface2.get_rect(center=(self.width - self.x, self.y - slide_amount + self.height / 2))
 			if not self.tx_alpha2 >= 255:
 				self.tx_alpha2 = min(self.tx_alpha2+8, 255)
 				txt_surf2 = text_surface2.copy()
@@ -196,14 +195,15 @@ class Question:
     self.points1 = points1
     self.points2 = points2
     self.points3 = points3
-
+    
+q0 = Question("N/A", "N/A", "N/A", "N/A", 0, 0, 0)
 q1 = Question("Najobľúbenejšé zvieratko človeka", "mačka", "pes", "korytmačk", 3, 2, 1)
 q2 = Question("Čo vie narásť", "lavica", "strom", "dom", 15, 10, 5)
 q3 = Question("Modulátor", "nighthawk", "purple motion", "realairforce", 30, 20, 10)
 q4 = Question("Farby v živote", "modrá","zelený","hnedo", 45, 30, 15)
 q5 = Question("Meno klienta diskontu", "abaddon","ripcord","discord", 60, 40, 20)
 
-questions = [q1, q2, q3, q4, q5]
+questions = [q0, q1, q2, q3, q4, q5]
 
 question_current = 0
 question_side = 0
@@ -285,16 +285,6 @@ while running:
 	if keys[pygame.K_RETURN] and (question_current == 0 or not question_reset):
 		audio_channel.play(question_snd)
 		ser.write("0".encode())
-		question_reset = True
-		question_1_shown = False
-		question_2_shown = False
-		question_3_shown = False
-		animated_rect.reset()
-		animated_rect.text = questions[question_current].text1
-		animated_rect2.reset()
-		animated_rect2.text = questions[question_current].text2
-		animated_rect3.reset()
-		animated_rect3.text = questions[question_current].text3
 		question_side = 0
 		question_current = question_current + 1
 		print("_______________\n"+str(question_current)+". kolo")
@@ -302,11 +292,28 @@ while running:
 		print("[A] 1.: " + str(questions[question_current].points1) + "\t | " + questions[question_current].text1)
 		print("[S] 2.: " + str(questions[question_current].points2) + "\t | " + questions[question_current].text2)
 		print("[D] 3.: " + str(questions[question_current].points3) + "\t | " + questions[question_current].text3)
+		question_reset = True
+		question_1_shown = False
+		question_2_shown = False
+		question_3_shown = False
+		animated_rect.reset()
+		animated_rect.text = questions[question_current].text1
+		animated_rect.text2 = str(questions[question_current].points1)
+		animated_rect2.reset()
+		animated_rect2.text = questions[question_current].text2
+		animated_rect2.text2 = str(questions[question_current].points2)
+		animated_rect3.reset()
+		animated_rect3.text = questions[question_current].text3
+		animated_rect3.text2 = str(questions[question_current].points3)
 		
 	screen.fill(bg_color)
 	
-	question_num_text = font_b.render(str(question_current)+". kolo", True, (255, 255, 255))
-	screen.blit(question_num_text, (960, 64))
+	if question_current == 0:
+		question_num_text = font_b.render("5 proti 5", True, (255, 255, 255))
+		screen.blit(question_num_text, (960, 64))
+	else:
+		question_num_text = font_b.render(str(question_current)+". kolo", True, (255, 255, 255))
+		screen.blit(question_num_text, (960, 64))
 	
 	blue_text = font2_b.render("Modrí", True, (255, 255, 255))
 	green_text = font2_b.render("Zelení", True, (255, 255, 255))
