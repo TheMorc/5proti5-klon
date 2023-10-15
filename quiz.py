@@ -15,16 +15,22 @@ bg_color = (0x18, 0x23, 0x2D)
 
 #ďakujem honzai, aj keď dostal som to od teba dosrané :trol:
 class AnimatedRectangle:
-	def __init__(self, x, y, width, height, text, animation_duration):
+	def __init__(self, x, y, width, height, text, text2, text3, animation_duration):
 		self.x = x
 		self.y = y
 		self.width = width
 		self.height = height
 		self.text = text
+		self.text2 = text2
+		self.text3 = text3
 		self.animation_duration = animation_duration
 		self.start_time = pygame.time.get_ticks()
+		self.start_time2 = pygame.time.get_ticks()
 		self.text_rendered = False
+		self.text_rendered2 = False
 		self.tx_alpha = 0
+		self.tx_alpha3 = 0
+		self.tx_alpha3 = 0
 
 	def ease_in_out_sine(self, t):
 		return (1 - math.cos(t * math.pi)) / 2
@@ -33,6 +39,9 @@ class AnimatedRectangle:
 		self.start_time = pygame.time.get_ticks()
 		self.text_rendered = False
 		self.tx_alpha = 0
+		self.text_rendered2 = False
+		self.tx_alpha2 = 0
+		self.tx_alpha3 = 0
 	
 	def update(self):
 		current_time = pygame.time.get_ticks()
@@ -50,19 +59,51 @@ class AnimatedRectangle:
 		pygame.draw.rect(surface, (67, 224, 234, alpha), (0, 0, self.width, self.height))
 		screen.blit(surface, (self.x, self.y - slide_amount))
 		
+		#answer
 		if self.text_rendered:
 			text_surface = font2_b.render(self.text, True, (0,0,0))
 			txt_surf = text_surface.copy()
 			alpha_surf = pygame.Surface(txt_surf.get_size(), pygame.SRCALPHA)
 			
 			text_rect = text_surface.get_rect(center=(self.x + self.width / 2, self.y - slide_amount + self.height / 2))
-			if not self.tx_alpha >= 252:
-				self.tx_alpha = max(self.tx_alpha+4, 0)
+			if not self.tx_alpha >= 255:
+				self.tx_alpha = min(self.tx_alpha+8, 255)
 				txt_surf = text_surface.copy()
 				alpha_surf.fill((255, 255, 255, self.tx_alpha))
 				txt_surf.blit(alpha_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
 			
 			screen.blit(txt_surf, text_rect)
+			
+		#points
+		if self.text_rendered and current_time - self.start_time2 > 800:
+			text_surface2 = font_i.render(self.text2, True, (0,0,0))
+			txt_surf2 = text_surface2.copy()
+			alpha_surf2 = pygame.Surface(txt_surf2.get_size(), pygame.SRCALPHA)
+			
+			text_rect2 = text_surface2.get_rect(center=(self.x + self.width / 2, self.y - slide_amount + self.height / 2))
+			text_rect2 = (self.width-self.x-self.x, text_rect2.y)
+			if not self.tx_alpha2 >= 255:
+				self.tx_alpha2 = min(self.tx_alpha2+8, 255)
+				txt_surf2 = text_surface2.copy()
+				alpha_surf2.fill((255, 255, 255, self.tx_alpha2))
+				txt_surf2.blit(alpha_surf2, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+			
+			screen.blit(txt_surf2, text_rect2)
+			
+		#number
+		text_surface3 = font.render(self.text3, True, (0,0,0))
+		txt_surf3 = text_surface3.copy()
+		alpha_surf3 = pygame.Surface(txt_surf3.get_size(), pygame.SRCALPHA)
+		
+		text_rect3 = text_surface3.get_rect(center=(self.x, self.y - slide_amount + self.height / 2))
+		text_rect3 = (self.x+self.x/2, text_rect3.y)
+		if not self.tx_alpha3 >= 255:
+			self.tx_alpha3 = min(self.tx_alpha3+8, 255)
+			txt_surf3 = text_surface3.copy()
+			alpha_surf3.fill((255, 255, 255, self.tx_alpha3))
+			txt_surf3.blit(alpha_surf3, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+		
+		screen.blit(txt_surf3, text_rect3)
 
 
 class AnimatedImage:
@@ -130,20 +171,19 @@ spsse_logo = pygame.image.load("spsse370.png")
 audio_channel = pygame.mixer.Channel(0)
 audio2_channel = pygame.mixer.Channel(1)
 audio3_channel = pygame.mixer.Channel(1)
-correct_snd = pygame.mixer.Sound("correct.mp3")
 wrong_snd = pygame.mixer.Sound("wrong.mp3")
-prompt_snd = pygame.mixer.Sound("prompt.mp3")
+prompt_snd = pygame.mixer.Sound("prompt_with_correct.mp3")
 question_snd = pygame.mixer.Sound("question.mp3")
 buzzer_snd = pygame.mixer.Sound("buzzer.mp3")
 
 #otázky
-animated_rect = AnimatedRectangle(40, 315, 1200, 110, "N/A", 1000)
-animated_rect2 = AnimatedRectangle(40, 470, 1200, 110, "N/A", 1000)
-animated_rect3 = AnimatedRectangle(40, 625, 1200, 110, "N/A", 1000)
+animated_rect = AnimatedRectangle(40, 315, 1200, 110, "N/A", "N/A", "1.", 1000)
+animated_rect2 = AnimatedRectangle(40, 470, 1200, 110, "N/A", "N/A", "2.", 1000)
+animated_rect3 = AnimatedRectangle(40, 625, 1200, 110, "N/A", "N/A", "3.", 1000)
 
 #wrong answer image
 image = pygame.image.load('wrong.png')
-animated_img = AnimatedImage(1280 / 2 - 192, 960 / 2 - 192, image, 333, 1000)
+animated_img = AnimatedImage(1280 / 2 - 192, 960 / 2 - 192, image, 280, 1000)
 wrong_pressed = False
 
 
@@ -193,6 +233,7 @@ while running:
 			elif question_side == 2:
 				green_points = green_points + questions[question_current].points2
 			animated_rect.text_rendered = True
+			animated_rect.start_time2 = pygame.time.get_ticks()
 			
 	if keys[pygame.K_s]:
 		if not question_2_shown and question_side != 0:
@@ -203,6 +244,7 @@ while running:
 			elif question_side == 2:
 				green_points = green_points + questions[question_current].points2
 			animated_rect2.text_rendered = True
+			animated_rect2.start_time2 = pygame.time.get_ticks()
 		
 	if keys[pygame.K_d]:
 		if not question_3_shown and question_side != 0:
@@ -213,6 +255,7 @@ while running:
 			elif question_side == 2:
 				green_points = green_points + questions[question_current].points3
 			animated_rect3.text_rendered = True
+			animated_rect3.start_time2 = pygame.time.get_ticks()
 			
 	if (ser.inWaiting() > 0):
 		data_str = ser.read(ser.inWaiting()).decode('ascii') 
