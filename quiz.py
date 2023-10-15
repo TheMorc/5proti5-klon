@@ -199,8 +199,8 @@ class Question:
 q0 = Question("N/A", "N/A", "N/A", "N/A", 0, 0, 0)
 q1 = Question("Najobľúbenejšé zvieratko človeka", "mačka", "pes", "korytmačk", 3, 2, 1)
 q2 = Question("Čo vie narásť", "lavica", "strom", "dom", 15, 10, 5)
-q3 = Question("Modulátor", "nighthawk", "purple motion", "realairforce", 30, 20, 10)
-q4 = Question("Farby v živote", "modrá","zelený","hnedo", 45, 30, 15)
+q3 = Question("Modulátor", "nighthawk", "purple motion", "jogeir liljedahl", 30, 20, 10)
+q4 = Question("Farby v živote", "modrá","červená","sračková", 45, 30, 15)
 q5 = Question("Meno klienta diskontu", "abaddon","ripcord","discord", 60, 40, 20)
 
 questions = [q0, q1, q2, q3, q4, q5]

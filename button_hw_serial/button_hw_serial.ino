@@ -6,6 +6,7 @@ int button2State = 0;
 int button1Lit = 0;
 int button2Lit = 0;
 int buttonReset = 0;
+char serialChar = '.';
 
 void setup() {
   Serial.begin(9600);
@@ -42,7 +43,7 @@ void loop() {
     Serial.println("2");
   }
 
-  char serialChar = Serial.read();
+  serialChar = Serial.read();
   if (serialChar == '0'){
     digitalWrite(8, 0);
     digitalWrite(9, 0);
