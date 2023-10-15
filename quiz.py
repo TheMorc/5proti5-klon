@@ -6,11 +6,11 @@ clock = pygame.time.Clock()
 
 ser = serial.Serial('/dev/tty.usbmodem1201', 9600)
 
-font = pygame.font.Font("Myriad.ttf", 66)
-font_b = pygame.font.Font("MyriadBold.ttf", 66)
-font_i = pygame.font.Font("MyriadItalic.ttf", 66)
-font2 = pygame.font.Font("Myriad.ttf", 86)
-font2_b = pygame.font.Font("MyriadBold.ttf", 86)
+font = pygame.font.Font("fonts/Myriad.ttf", 66)
+font_b = pygame.font.Font("fonts/MyriadBold.ttf", 66)
+font_i = pygame.font.Font("fonts/MyriadItalic.ttf", 66)
+font2 = pygame.font.Font("fonts/Myriad.ttf", 86)
+font2_b = pygame.font.Font("fonts/MyriadBold.ttf", 86)
 bg_color = (0x18, 0x23, 0x2D)
 
 #ďakujem honzai, aj keď dostal som to od teba dosrané :trol:
@@ -165,15 +165,15 @@ class AnimatedImage:
 		
 
 
-spsse_logo = pygame.image.load("spsse370.png")
+spsse_logo = pygame.image.load("images/spsse370.png")
 
 audio_channel = pygame.mixer.Channel(0)
 audio2_channel = pygame.mixer.Channel(1)
-audio3_channel = pygame.mixer.Channel(1)
-wrong_snd = pygame.mixer.Sound("wrong.mp3")
-prompt_snd = pygame.mixer.Sound("prompt_with_correct.mp3")
-question_snd = pygame.mixer.Sound("question.mp3")
-buzzer_snd = pygame.mixer.Sound("buzzer.mp3")
+audio3_channel = pygame.mixer.Channel(2)
+wrong_snd = pygame.mixer.Sound("sounds/wrong.mp3")
+prompt_snd = pygame.mixer.Sound("sounds/prompt_with_correct.mp3")
+question_snd = pygame.mixer.Sound("sounds/question.mp3")
+buzzer_snd = pygame.mixer.Sound("sounds/buzzer.mp3")
 
 #otázky
 animated_rect = AnimatedRectangle(40, 315, 1200, 110, "N/A", "N/A", "1.", 1000)
@@ -181,7 +181,7 @@ animated_rect2 = AnimatedRectangle(40, 470, 1200, 110, "N/A", "N/A", "2.", 1000)
 animated_rect3 = AnimatedRectangle(40, 625, 1200, 110, "N/A", "N/A", "3.", 1000)
 
 #wrong answer image
-image = pygame.image.load('wrong.png')
+image = pygame.image.load('images/wrong.png')
 animated_img = AnimatedImage(1280 / 2 - 192, 960 / 2 - 192, image, 280, 1000)
 wrong_pressed = False
 
