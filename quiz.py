@@ -4,7 +4,7 @@ pygame.init()
 screen = pygame.display.set_mode((1280, 960), pygame.SCALED)
 clock = pygame.time.Clock()
 
-#ser = serial.Serial('/dev/tty.usbmodem1101', 9600)
+ser = serial.Serial('/dev/tty.usbmodem1101', 9600)
 
 font = pygame.font.Font("fonts/Myriad.ttf", 66)
 font_b = pygame.font.Font("fonts/MyriadBold.ttf", 66)
@@ -113,6 +113,7 @@ class AnimatedImage:
 		self.animation_duration = animation_duration
 		self.fade_out_start = fade_out_start
 		self.start_time = pygame.time.get_ticks()
+		self.visible = False #used for glows
 		
 	def cubic_bezier(self, t, p0, p1, p2, p3):
 		u = 1 - t
@@ -150,14 +151,20 @@ class AnimatedImage:
 		surface = pygame.Surface((scaled_image.get_width(), scaled_image.get_height()), pygame.SRCALPHA)
 		surface.blit(scaled_image, (0, 0), special_flags=pygame.BLEND_RGBA_ADD)
 	
-		if current_time - self.start_time > self.fade_out_start:
-			fade_out_duration = self.animation_duration - self.fade_out_start
-			fade_out_alpha = int(((current_time - self.start_time - self.fade_out_start) / fade_out_duration) * 255)
-			if fade_out_alpha > -255:
-				surface.set_alpha(255 + fade_out_alpha)
+		if self.fade_out_start != 0:
+			if current_time - self.start_time > self.fade_out_start:
+				fade_out_duration = self.animation_duration - self.fade_out_start
+				fade_out_alpha = int(((current_time - self.start_time - self.fade_out_start) / fade_out_duration) * 255)
+				if fade_out_alpha > -255:
+					surface.set_alpha(255 + fade_out_alpha)
+				else:
+					surface.set_alpha(0)
+					wrong_pressed = False
+		else:
+			if self.visible:
+				surface.set_alpha(255)
 			else:
 				surface.set_alpha(0)
-				wrong_pressed = False
 		
 		screen.blit(surface, (self.x - (surface.get_width() - image_width) / 2, self.y - (surface.get_height() - image_height) / 2))
 		
@@ -183,6 +190,12 @@ animated_rect3 = AnimatedRectangle(40, 625, 1200, 110, "N/A", "N/A", "3.", 1000)
 image = pygame.image.load('images/wrong.png')
 animated_img = AnimatedImage(1280 / 2 - 192, 960 / 2 - 192, image, 280, 1000)
 wrong_pressed = False
+
+#text glows
+blue_img = pygame.image.load('images/blue.png')
+green_img = pygame.image.load('images/green.png')
+blue_glow = AnimatedImage(-15, 700, blue_img, 280, 0)
+green_glow = AnimatedImage(835, 700, green_img, 280, 0)
 
 class TransitionVideo:
   def __init__(self, video_path, sound_path, duration):
@@ -227,6 +240,7 @@ questions_shown = False
 question_1_shown = False
 question_2_shown = False
 question_3_shown = False
+
 #bg
 video = cv2.VideoCapture("images/bg.mp4")
 success, video_image = video.read()
@@ -283,27 +297,31 @@ while running:
 			animated_rect3.text_rendered = True
 			animated_rect3.start_time2 = pygame.time.get_ticks()
 			
-	#f (ser.inWaiting() > 0):
-	#	data_str = ser.read(ser.inWaiting()).decode('ascii') 
-	#	if "1" in data_str and question_reset and question_current != 0:
-	#		audio2_channel.play(buzzer_snd)
-	#		question_side = 1
-	#		question_reset = False
-	#		print("hrajú modri")
-	#	elif "2" in data_str and question_reset and question_current != 0:
-	#		audio2_channel.play(buzzer_snd)
-	#		question_side = 2
-	#		question_reset = False
-	#		print("hrajú zeleni")
+	if (ser.inWaiting() > 0):
+		data_str = ser.read(ser.inWaiting()).decode('ascii') 
+		if "1" in data_str and question_reset and question_current != 0:
+			audio2_channel.play(buzzer_snd)
+			question_side = 1
+			question_reset = False
+			blue_glow.start_time = pygame.time.get_ticks()
+			blue_glow.visible = True
+			print("hrajú modri")
+		elif "2" in data_str and question_reset and question_current != 0:
+			audio2_channel.play(buzzer_snd)
+			question_side = 2
+			question_reset = False
+			green_glow.start_time = pygame.time.get_ticks()
+			green_glow.visible = True
+			print("hrajú zeleni")
     
 	if keys[pygame.K_x] and not wrong_pressed:
-		#ser.write("3".encode())
+		ser.write("3".encode())
 		wrong_pressed = True
 		audio_channel.play(wrong_snd)
 		animated_img.start_time = pygame.time.get_ticks()    
 	
-	#if question_current == 0:
-	#	ser.write("0".encode())
+	if question_current == 0:
+		ser.write("0".encode())
 		
 	current_time = pygame.time.get_ticks()
 	
@@ -318,13 +336,15 @@ while running:
 			can_continue = True
 			question_reset = True
 	elif keys[pygame.K_RETURN] and can_continue and not transition_playing:
-		#ser.write("0".encode())
+		ser.write("0".encode())
 		question_side = 0
 		question_current = question_current + 1
 		transition_audio_playing = False
 		transition_playing = True
 		questions_shown = False
 		can_continue = False
+		blue_glow.visible = False
+		green_glow.visible = False
 		delay_duration = current_time + videos[question_current].duration
 		elapsed_time = 0
 		print("______________________________\nPREHRÁVANÍ PRELÍNAČKA čas:" + str(videos[question_current].duration))
@@ -353,8 +373,8 @@ while running:
 		animated_rect3.text2 = str(questions[question_current].points3)	
 		
 	
-	#if keys[pygame.K_r]:
-	#	ser.write("0".encode())
+	if keys[pygame.K_r]:
+		ser.write("0".encode())
 	
 	if elapsed_time < delay_duration and transition_playing:
 		elapsed_time = current_time - delay_duration
@@ -377,6 +397,10 @@ while running:
 		question_num_text = font_b.render(str(question_current)+". kolo", True, (255, 255, 255))
 		screen.blit(question_num_text, (960, 64))
 	
+	
+	blue_glow.update()
+	green_glow.update()
+	
 	blue_text = font2_b.render("Modrí", True, (255, 255, 255))
 	green_text = font2_b.render("Zelení", True, (255, 255, 255))
 	screen.blit(blue_text, (80, 783))
@@ -397,6 +421,7 @@ while running:
 		animated_rect3.update()
 	
 	animated_img.update()
+	
     
 	if transition_playing:
 		if not transition_audio_playing:
