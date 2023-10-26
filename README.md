@@ -11,25 +11,21 @@
 * na akýkoľvek nespomenutý bod sa ma treba pýtať buď osobne alebo neosobne skrz jeden z dostupných kontaktov
 
 ## Keybindy
+### Ovládanie priebehu
 | Klávesa | Funkcia                         |
 |---------|---------------------------------|
 | ESC     | Fullscreen režim   				|
 | ENTER   | Intro a prelínačky 				|
 | P       | Výpis otázky       				|
-| R       | Reset na tlačítka  				|
-| A       | 1. správna odpoveď pre modrých  |
-| S       | 2. správna odpoveď pre modrých  |
-| D       | 3. správna odpoveď pre modrých  |
-| G       | 1. správna odpoveď pre zelených |
-| H       | 2. správna odpoveď pre zelených |
-| J       | 3. správna odpoveď pre zelených |
-| C       | 1. správna odpoveď bez bodov    |
-| V       | 2. správna odpoveď bez bodov    |
-| B       | 3. správna odpoveď bez bodov    |
-| X       | Nesprávna odpoveď               |
+| R       | Reset tlačítkok 				|
 
-
-
+### Ovládanie pri otázkach
+| Klávesa | Funkcia                                   |
+|---------|-------------------------------------------|
+| A, S, D | 1., 2. a 3. správna odpoveď pre učiteľov  |
+| G, H, J | 1., 2. a 3. správna odpoveď pre žiakov    |
+| C, V, B | 1., 2. a 3. odpoveď bez bodov             |
+| X       | Nesprávna odpoveď                         |
 
 # Credits
 * **RTVS, ABC a CBS za formát ako taký**
