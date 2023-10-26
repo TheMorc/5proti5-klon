@@ -4,7 +4,7 @@ pygame.init()
 screen = pygame.display.set_mode((1280, 960), pygame.SCALED)
 clock = pygame.time.Clock()
 
-ser = serial.Serial('/dev/tty.usbmodem1101', 9600)
+#ser = serial.Serial('/dev/tty.usbmodem1101', 9600)
 
 font = pygame.font.Font("fonts/Myriad.ttf", 66)
 font_b = pygame.font.Font("fonts/MyriadBold.ttf", 66)
@@ -136,8 +136,6 @@ class AnimatedImage:
 		
 		if time_elapsed >= self.animation_duration:
 			time_elapsed = self.animation_duration
-			
-		alpha = int((time_elapsed / self.animation_duration) * 255)
 		
 		p0 = 1.0
 		p1 = 2
@@ -195,11 +193,11 @@ class TransitionVideo:
     self.sound = pygame.mixer.Sound(self.sound_path)
     
 videos = [TransitionVideo("images/intro.mp4","sounds/5p5_long.mp3", 20000),
-		TransitionVideo("images/round_1.mp4","sounds/5p5_short.mp3", 12000),
-		TransitionVideo("images/round_2.mp4","sounds/5p5_short.mp3", 12000),
-		TransitionVideo("images/round_3.mp4","sounds/5p5_short.mp3", 12000),
-		TransitionVideo("images/round_4.mp4","sounds/5p5_short.mp3", 12000),
-		TransitionVideo("images/round_5.mp4","sounds/5p5_short.mp3", 12000),
+		TransitionVideo("images/round_1.mp4","sounds/5p5_short.mp3", 9500),
+		TransitionVideo("images/round_2.mp4","sounds/5p5_short.mp3", 9500),
+		TransitionVideo("images/round_3.mp4","sounds/5p5_short.mp3", 9500),
+		TransitionVideo("images/round_4.mp4","sounds/5p5_short.mp3", 9500),
+		TransitionVideo("images/round_5.mp4","sounds/5p5_short.mp3", 9500),
 		TransitionVideo("images/bonus.mp4","sounds/1proti1_or_extra_short.mp3", 7000)]
 
 class Question:
@@ -285,27 +283,27 @@ while running:
 			animated_rect3.text_rendered = True
 			animated_rect3.start_time2 = pygame.time.get_ticks()
 			
-	if (ser.inWaiting() > 0):
-		data_str = ser.read(ser.inWaiting()).decode('ascii') 
-		if "1" in data_str and question_reset and question_current != 0:
-			audio2_channel.play(buzzer_snd)
-			question_side = 1
-			question_reset = False
-			print("hrajú modri")
-		elif "2" in data_str and question_reset and question_current != 0:
-			audio2_channel.play(buzzer_snd)
-			question_side = 2
-			question_reset = False
-			print("hrajú zeleni")
+	#f (ser.inWaiting() > 0):
+	#	data_str = ser.read(ser.inWaiting()).decode('ascii') 
+	#	if "1" in data_str and question_reset and question_current != 0:
+	#		audio2_channel.play(buzzer_snd)
+	#		question_side = 1
+	#		question_reset = False
+	#		print("hrajú modri")
+	#	elif "2" in data_str and question_reset and question_current != 0:
+	#		audio2_channel.play(buzzer_snd)
+	#		question_side = 2
+	#		question_reset = False
+	#		print("hrajú zeleni")
     
 	if keys[pygame.K_x] and not wrong_pressed:
-		ser.write("3".encode())
+		#ser.write("3".encode())
 		wrong_pressed = True
 		audio_channel.play(wrong_snd)
 		animated_img.start_time = pygame.time.get_ticks()    
 	
-	if question_current == 0:
-		ser.write("0".encode())
+	#if question_current == 0:
+	#	ser.write("0".encode())
 		
 	current_time = pygame.time.get_ticks()
 	
@@ -320,7 +318,7 @@ while running:
 			can_continue = True
 			question_reset = True
 	elif keys[pygame.K_RETURN] and can_continue and not transition_playing:
-		ser.write("0".encode())
+		#ser.write("0".encode())
 		question_side = 0
 		question_current = question_current + 1
 		transition_audio_playing = False
@@ -355,8 +353,8 @@ while running:
 		animated_rect3.text2 = str(questions[question_current].points3)	
 		
 	
-	if keys[pygame.K_r]:
-		ser.write("0".encode())
+	#if keys[pygame.K_r]:
+	#	ser.write("0".encode())
 	
 	if elapsed_time < delay_duration and transition_playing:
 		elapsed_time = current_time - delay_duration
@@ -409,8 +407,11 @@ while running:
 		
 		if transition_success:
 			transition_video_surf = pygame.image.frombuffer(transition_video_image.tobytes(), transition_video_image.shape[1::-1], "BGR")
+			if elapsed_time > -1000:
+				fade_out_alpha = int((elapsed_time*-255)/1000)
+				transition_video_surf.set_alpha(fade_out_alpha)
 			screen.blit(transition_video_surf, (0, 0))
-	
+		
 	if blackout:
 		screen.fill(blackout)	
 		
