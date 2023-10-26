@@ -227,7 +227,7 @@ class Question:
 questions = [Question("N/A", "N/A", "N/A", "N/A", 0, 0, 0),
 			Question("Aká je obľúbená činnosť študenta SPŠSE?", "spánok", "hranie sa na mobile", "jedenie", 45, 32, 22),
 			Question("Keď meškáš kvôli doprave tak kam máš ísť?", "domov", "doľava", "na hodinu", 38, 11, 2), 
-			Question("Najlepšia výhovorka keď príde študent neskoro do školy?", "meškala doprava", "návšteva lekára", "napadol ma yeti", 41, 23, 3),
+			Question("Aká je najlepšia výhovorka keď príde študent neskoro do školy?", "meškala doprava", "návšteva lekára", "napadol ma yeti", 41, 23, 3),
 			Question("Aké je najobľúbenejšie zvieratko študentov SPŠSE?", "mačka", "pes", "yeti", 45, 21, 3),
 			Question("Čo nesmie v škole horieť?", "cigarety", "žiak", "termín na opravu známky", 31, 17, 2),
 			Question("Aká trieda má dnes stužkovú?", "IV.A", "IV.B", "vy", 55, 55, 22)] #BONUSová za dvojnásobek
@@ -236,6 +236,8 @@ question_current = 0
 question_side = 0
 blue_points = 0
 green_points = 0
+blue_points_animated = 0
+green_points_animated = 0
 question_reset = True
 questions_shown = False
 question_1_shown = False
@@ -440,13 +442,19 @@ while running:
 	blue_glow.update()
 	green_glow.update()
 	
-	blue_text = font2_b.render("Modrí", True, (255, 255, 255))
-	green_text = font2_b.render("Zelení", True, (255, 255, 255))
-	screen.blit(blue_text, (80, 783))
-	screen.blit(green_text, (940, 783))
+	blue_text = font2_b.render("Učitelia", True, (255, 255, 255))
+	green_text = font2_b.render("Žiaci", True, (255, 255, 255))
+	screen.blit(blue_text, (50, 783))
+	screen.blit(green_text, (970, 783))
 	
-	blue_points_text = font_i.render(str(blue_points)+" bodov", True, (255, 255, 255))
-	green_points_text = font_i.render(str(green_points)+" bodov", True, (255, 255, 255))
+	if blue_points_animated != blue_points:
+		blue_points_animated += 1
+		
+	if green_points_animated != green_points:
+		green_points_animated += 1
+	
+	blue_points_text = font_i.render(str(blue_points_animated)+" bodov", True, (255, 255, 255))
+	green_points_text = font_i.render(str(green_points_animated)+" bodov", True, (255, 255, 255))
 	blue_text_rect = blue_points_text.get_rect(center=(195,895))
 	screen.blit(blue_points_text, blue_text_rect)
 	green_text_rect = green_points_text.get_rect(center=(1058,895))
