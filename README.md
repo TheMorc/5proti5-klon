@@ -11,16 +11,22 @@
 * na akýkoľvek nespomenutý bod sa ma treba pýtať buď osobne alebo neosobne skrz jeden z dostupných kontaktov
 
 ## Keybindy
-| Klávesa  | Funkcia            |
-|---------|--------------------|
-| ESC     | Fullscreen režim   |
-| ENTER   | Intro a prelínačky |
-| P       | Výpis otázky       |
-| R       | Reset na tlačítka  |
-| A       | 1. správna odpoveď |
-| S       | 2. správna odpoveď |
-| D       | 3. správna odpoveď |
-| X       | Nesprávna odpoveď  |
+| Klávesa | Funkcia                         |
+|---------|---------------------------------|
+| ESC     | Fullscreen režim   				|
+| ENTER   | Intro a prelínačky 				|
+| P       | Výpis otázky       				|
+| R       | Reset na tlačítka  				|
+| A       | 1. správna odpoveď pre modrých  |
+| S       | 2. správna odpoveď pre modrých  |
+| D       | 3. správna odpoveď pre modrých  |
+| G       | 1. správna odpoveď pre zelených |
+| H       | 2. správna odpoveď pre zelených |
+| J       | 3. správna odpoveď pre zelených |
+| C       | 1. správna odpoveď bez bodov    |
+| V       | 2. správna odpoveď bez bodov    |
+| B       | 3. správna odpoveď bez bodov    |
+| X       | Nesprávna odpoveď               |
 
 
 

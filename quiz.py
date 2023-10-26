@@ -4,7 +4,7 @@ pygame.init()
 screen = pygame.display.set_mode((1280, 960), pygame.SCALED)
 clock = pygame.time.Clock()
 
-ser = serial.Serial('/dev/tty.usbmodem1101', 9600)
+ser = serial.Serial('/dev/tty.usbmodem11301', 9600)
 
 font = pygame.font.Font("fonts/Myriad.ttf", 66)
 font_b = pygame.font.Font("fonts/MyriadBold.ttf", 66)
@@ -176,7 +176,8 @@ audio_channel = pygame.mixer.Channel(0)
 audio2_channel = pygame.mixer.Channel(1)
 audio3_channel = pygame.mixer.Channel(2)
 wrong_snd = pygame.mixer.Sound("sounds/wrong.mp3")
-prompt_snd = pygame.mixer.Sound("sounds/prompt_with_correct.mp3")
+prompt_correct_snd = pygame.mixer.Sound("sounds/prompt_with_correct.mp3")
+prompt_snd = pygame.mixer.Sound("sounds/prompt.mp3")
 question_snd = pygame.mixer.Sound("sounds/question.mp3")
 buzzer_snd = pygame.mixer.Sound("sounds/buzzer.mp3")
 transition_sound = pygame.mixer.Sound("sounds/wrong.mp3")
@@ -227,7 +228,7 @@ questions = [Question("N/A", "N/A", "N/A", "N/A", 0, 0, 0),
 			Question("Aká je obľúbená činnosť študenta SPŠSE?", "spánok", "hranie sa na mobile", "jedenie", 45, 32, 22),
 			Question("Keď meškáš kvôli doprave tak kam máš ísť?", "domov", "doľava", "na hodinu", 38, 11, 2), 
 			Question("Najlepšia výhovorka keď príde študent neskoro do školy?", "meškala doprava", "návšteva lekára", "napadol ma yeti", 41, 23, 3),
-			Question("Aké je najobľúbenejšie zvieratko študentov SPŠSE?", "mačka", "", "yeti", 45, 17, 3),
+			Question("Aké je najobľúbenejšie zvieratko študentov SPŠSE?", "mačka", "pes", "yeti", 45, 21, 3),
 			Question("Čo nesmie v škole horieť?", "cigarety", "žiak", "termín na opravu známky", 31, 17, 2),
 			Question("Aká trieda má dnes stužkovú?", "IV.A", "IV.B", "vy", 55, 55, 22)] #BONUSová za dvojnásobek
 
@@ -266,34 +267,70 @@ while running:
 		
 	if keys[pygame.K_a]:
 		if not question_1_shown and question_side != 0:
-			audio3_channel.play(prompt_snd)
+			audio3_channel.play(prompt_correct_snd)
 			question_1_shown = True
-			if question_side == 1:
-				blue_points = blue_points + questions[question_current].points1
-			elif question_side == 2:
-				green_points = green_points + questions[question_current].points1
+			blue_points = blue_points + questions[question_current].points1
 			animated_rect.text_rendered = True
 			animated_rect.start_time2 = pygame.time.get_ticks()
 			
 	if keys[pygame.K_s]:
 		if not question_2_shown and question_side != 0:
-			audio3_channel.play(prompt_snd)
+			audio3_channel.play(prompt_correct_snd)
 			question_2_shown = True
-			if question_side == 1:
-				blue_points = blue_points + questions[question_current].points2
-			elif question_side == 2:
-				green_points = green_points + questions[question_current].points2
+			blue_points = blue_points + questions[question_current].points2
 			animated_rect2.text_rendered = True
 			animated_rect2.start_time2 = pygame.time.get_ticks()
 		
 	if keys[pygame.K_d]:
 		if not question_3_shown and question_side != 0:
+			audio3_channel.play(prompt_correct_snd)
+			question_3_shown = True
+			blue_points = blue_points + questions[question_current].points3
+			animated_rect3.text_rendered = True
+			animated_rect3.start_time2 = pygame.time.get_ticks()
+			
+	if keys[pygame.K_g]:
+		if not question_1_shown and question_side != 0:
+			audio3_channel.play(prompt_correct_snd)
+			question_1_shown = True
+			green_points = green_points + questions[question_current].points1
+			animated_rect.text_rendered = True
+			animated_rect.start_time2 = pygame.time.get_ticks()
+			
+	if keys[pygame.K_h]:
+		if not question_2_shown and question_side != 0:
+			audio3_channel.play(prompt_correct_snd)
+			question_2_shown = True
+			green_points = green_points + questions[question_current].points2
+			animated_rect2.text_rendered = True
+			animated_rect2.start_time2 = pygame.time.get_ticks()
+		
+	if keys[pygame.K_j]:
+		if not question_3_shown and question_side != 0:
+			audio3_channel.play(prompt_correct_snd)
+			question_3_shown = True
+			green_points = green_points + questions[question_current].points3
+			animated_rect3.text_rendered = True
+			animated_rect3.start_time2 = pygame.time.get_ticks()
+			
+	if keys[pygame.K_c]:
+		if not question_1_shown and question_side != 0:
+			audio3_channel.play(prompt_snd)
+			question_1_shown = True
+			animated_rect.text_rendered = True
+			animated_rect.start_time2 = pygame.time.get_ticks()
+			
+	if keys[pygame.K_v]:
+		if not question_2_shown and question_side != 0:
+			audio3_channel.play(prompt_snd)
+			question_2_shown = True
+			animated_rect2.text_rendered = True
+			animated_rect2.start_time2 = pygame.time.get_ticks()
+		
+	if keys[pygame.K_b]:
+		if not question_3_shown and question_side != 0:
 			audio3_channel.play(prompt_snd)
 			question_3_shown = True
-			if question_side == 1:
-				blue_points = blue_points + questions[question_current].points3
-			elif question_side == 2:
-				green_points = green_points + questions[question_current].points3
 			animated_rect3.text_rendered = True
 			animated_rect3.start_time2 = pygame.time.get_ticks()
 			
@@ -320,8 +357,10 @@ while running:
 		audio_channel.play(wrong_snd)
 		animated_img.start_time = pygame.time.get_ticks()    
 	
-	if question_current == 0:
+	if question_current == 0 or not questions_shown:
 		ser.write("0".encode())
+		blue_glow.visible = False
+		green_glow.visible = False
 		
 	current_time = pygame.time.get_ticks()
 	
@@ -351,11 +390,11 @@ while running:
 	
 	if keys[pygame.K_p] and not questions_shown:
 		audio_channel.play(question_snd)
-		print("_______________\n"+str(question_current)+". kolo")
-		print("otázka: " + questions[question_current].name)
-		print("[A] 1.: " + str(questions[question_current].points1) + "\t | " + questions[question_current].text1)
-		print("[S] 2.: " + str(questions[question_current].points2) + "\t | " + questions[question_current].text2)
-		print("[D] 3.: " + str(questions[question_current].points3) + "\t | " + questions[question_current].text3)
+		ser.write("0".encode())
+		print(str(question_current)+". kolo | otázka: " + questions[question_current].name)
+		print("1.: [modrí A | zelení G | bez bodov C] " + str(questions[question_current].points1) + " bodov\t | " + questions[question_current].text1)
+		print("2.: [modrí S | zelení H | bez bodov V] " + str(questions[question_current].points2) + " bodov\t | " + questions[question_current].text2)
+		print("3.: [modrí D | zelení J | bez bodov B] " + str(questions[question_current].points3) + " bodov\t | " + questions[question_current].text3)
 		question_reset = True
 		questions_shown = True
 		question_1_shown = False
