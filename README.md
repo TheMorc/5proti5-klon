@@ -10,6 +10,21 @@
 * pri výrobe tohto veľdiela bol použitý ChatGPT v časoch neistoty a chaosu, vznikol tým chaos ešte väčší
 * na akýkoľvek nespomenutý bod sa ma treba pýtať buď osobne alebo neosobne skrz jeden z dostupných kontaktov
 
+## Keybindy
+| Klávesa  | Funkcia            |
+|---------|--------------------|
+| ESC     | Fullscreen režim   |
+| ENTER   | Intro a prelínačky |
+| P       | Výpis otázky       |
+| R       | Reset na tlačítka  |
+| A       | 1. správna odpoveď |
+| S       | 2. správna odpoveď |
+| D       | 3. správna odpoveď |
+| X       | Nesprávna odpoveď  |
+
+
+
+
 # Credits
 * **RTVS, ABC a CBS za formát ako taký**
 * **[Peťovi](https://trandzik.com) a [Palovi](https://trandzik.sk) Trandžíkovi za inšpiráciu a za to že som mal čo čítať na ich stránkach**
