@@ -1,17 +1,17 @@
-import pygame, serial, math
+import pygame, serial, math, cv2
 
 pygame.init()
 screen = pygame.display.set_mode((1280, 960), pygame.SCALED)
 clock = pygame.time.Clock()
 
-ser = serial.Serial('/dev/tty.usbmodem1201', 9600)
+ser = serial.Serial('/dev/tty.usbmodem1101', 9600)
 
 font = pygame.font.Font("fonts/Myriad.ttf", 66)
 font_b = pygame.font.Font("fonts/MyriadBold.ttf", 66)
 font_i = pygame.font.Font("fonts/MyriadItalic.ttf", 66)
 font2 = pygame.font.Font("fonts/Myriad.ttf", 86)
 font2_b = pygame.font.Font("fonts/MyriadBold.ttf", 86)
-bg_color = (0x18, 0x23, 0x2D)
+blackout_color = (0, 0, 0)
 
 #ďakujem honzai, aj keď dostal som to od teba dosrané :trol:
 class AnimatedRectangle:
@@ -174,6 +174,7 @@ wrong_snd = pygame.mixer.Sound("sounds/wrong.mp3")
 prompt_snd = pygame.mixer.Sound("sounds/prompt_with_correct.mp3")
 question_snd = pygame.mixer.Sound("sounds/question.mp3")
 buzzer_snd = pygame.mixer.Sound("sounds/buzzer.mp3")
+transition_sound = pygame.mixer.Sound("sounds/wrong.mp3")
 
 #otázky
 animated_rect = AnimatedRectangle(40, 315, 1200, 110, "N/A", "N/A", "1.", 1000)
@@ -185,6 +186,21 @@ image = pygame.image.load('images/wrong.png')
 animated_img = AnimatedImage(1280 / 2 - 192, 960 / 2 - 192, image, 280, 1000)
 wrong_pressed = False
 
+class TransitionVideo:
+  def __init__(self, video_path, sound_path, duration):
+    self.video_path = video_path
+    self.sound_path = sound_path
+    self.duration = duration
+    self.video = cv2.VideoCapture(self.video_path)
+    self.sound = pygame.mixer.Sound(self.sound_path)
+    
+videos = [TransitionVideo("images/intro.mp4","sounds/5p5_long.mp3", 20000),
+		TransitionVideo("images/round_1.mp4","sounds/5p5_short.mp3", 12000),
+		TransitionVideo("images/round_2.mp4","sounds/5p5_short.mp3", 12000),
+		TransitionVideo("images/round_3.mp4","sounds/5p5_short.mp3", 12000),
+		TransitionVideo("images/round_4.mp4","sounds/5p5_short.mp3", 12000),
+		TransitionVideo("images/round_5.mp4","sounds/5p5_short.mp3", 12000),
+		TransitionVideo("images/bonus.mp4","sounds/1proti1_or_extra_short.mp3", 7000)]
 
 class Question:
   def __init__(self, name, text1, text2, text3, points1, points2, points3):
@@ -195,30 +211,42 @@ class Question:
     self.points1 = points1
     self.points2 = points2
     self.points3 = points3
-    
-q0 = Question("N/A", "N/A", "N/A", "N/A", 0, 0, 0)
-q1 = Question("Najobľúbenejšé zvieratko človeka", "mačka", "pes", "korytmačk", 3, 2, 1)
-q2 = Question("Čo vie narásť", "lavica", "strom", "dom", 15, 10, 5)
-q3 = Question("Modulátor", "nighthawk", "purple motion", "jogeir liljedahl", 30, 20, 10)
-q4 = Question("Farby v živote", "modrá","červená","sračková", 45, 30, 15)
-q5 = Question("Meno klienta diskontu", "abaddon","ripcord","discord", 60, 40, 20)
 
-questions = [q0, q1, q2, q3, q4, q5]
+questions = [Question("N/A", "N/A", "N/A", "N/A", 0, 0, 0),
+			Question("Aká je obľúbená činnosť študenta SPŠSE?", "spánok", "hranie sa na mobile", "jedenie", 45, 32, 22),
+			Question("Keď meškáš kvôli doprave tak kam máš ísť?", "domov", "doľava", "na hodinu", 38, 11, 2), 
+			Question("Najlepšia výhovorka keď príde študent neskoro do školy?", "meškala doprava", "návšteva lekára", "napadol ma yeti", 41, 23, 3),
+			Question("Aké je najobľúbenejšie zvieratko študentov SPŠSE?", "mačka", "", "yeti", 45, 17, 3),
+			Question("Čo nesmie v škole horieť?", "cigarety", "žiak", "termín na opravu známky", 31, 17, 2),
+			Question("Aká trieda má dnes stužkovú?", "IV.A", "IV.B", "vy", 55, 55, 22)] #BONUSová za dvojnásobek
 
 question_current = 0
 question_side = 0
 blue_points = 0
 green_points = 0
 question_reset = True
+questions_shown = False
 question_1_shown = False
 question_2_shown = False
 question_3_shown = False
+#bg
+video = cv2.VideoCapture("images/bg.mp4")
+success, video_image = video.read()
+
+delay_duration = 0
+elapsed_time = 0
+transition_playing = False
+transition_audio_playing = False
+can_continue = False
+intro_done = False
+blackout = True
 
 running = True
 while running:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			running = False
+	
 	
 	keys = pygame.key.get_pressed()
 	if keys[pygame.K_ESCAPE]:
@@ -231,7 +259,7 @@ while running:
 			if question_side == 1:
 				blue_points = blue_points + questions[question_current].points1
 			elif question_side == 2:
-				green_points = green_points + questions[question_current].points2
+				green_points = green_points + questions[question_current].points1
 			animated_rect.text_rendered = True
 			animated_rect.start_time2 = pygame.time.get_ticks()
 			
@@ -275,27 +303,47 @@ while running:
 		wrong_pressed = True
 		audio_channel.play(wrong_snd)
 		animated_img.start_time = pygame.time.get_ticks()    
-        
-	if keys[pygame.K_p]:
-		audio_channel.play(prompt_snd)
 	
 	if question_current == 0:
 		ser.write("0".encode())
+		
+	current_time = pygame.time.get_ticks()
 	
-	if keys[pygame.K_RETURN] and (question_current == 0 or not question_reset):
-		audio_channel.play(question_snd)
+	if keys[pygame.K_RETURN] and question_current == 0 and not transition_playing and not intro_done:
+			blackout = False
+			transition_audio_playing = False
+			transition_playing = True
+			delay_duration = current_time + videos[0].duration
+			elapsed_time = 0
+			print("______________________________\nPREHRÁVANÍ INTRO čas:" + str(videos[question_current].duration))
+			intro_done = True
+			can_continue = True
+			question_reset = True
+	elif keys[pygame.K_RETURN] and can_continue and not transition_playing:
 		ser.write("0".encode())
 		question_side = 0
 		question_current = question_current + 1
+		transition_audio_playing = False
+		transition_playing = True
+		questions_shown = False
+		can_continue = False
+		delay_duration = current_time + videos[question_current].duration
+		elapsed_time = 0
+		print("______________________________\nPREHRÁVANÍ PRELÍNAČKA čas:" + str(videos[question_current].duration))
+	
+	if keys[pygame.K_p] and not questions_shown:
+		audio_channel.play(question_snd)
 		print("_______________\n"+str(question_current)+". kolo")
 		print("otázka: " + questions[question_current].name)
 		print("[A] 1.: " + str(questions[question_current].points1) + "\t | " + questions[question_current].text1)
 		print("[S] 2.: " + str(questions[question_current].points2) + "\t | " + questions[question_current].text2)
 		print("[D] 3.: " + str(questions[question_current].points3) + "\t | " + questions[question_current].text3)
 		question_reset = True
+		questions_shown = True
 		question_1_shown = False
 		question_2_shown = False
 		question_3_shown = False
+		can_continue = True
 		animated_rect.reset()
 		animated_rect.text = questions[question_current].text1
 		animated_rect.text2 = str(questions[question_current].points1)
@@ -304,10 +352,26 @@ while running:
 		animated_rect2.text2 = str(questions[question_current].points2)
 		animated_rect3.reset()
 		animated_rect3.text = questions[question_current].text3
-		animated_rect3.text2 = str(questions[question_current].points3)
+		animated_rect3.text2 = str(questions[question_current].points3)	
 		
-	screen.fill(bg_color)
 	
+	if keys[pygame.K_r]:
+		ser.write("0".encode())
+	
+	if elapsed_time < delay_duration and transition_playing:
+		elapsed_time = current_time - delay_duration
+		
+	if elapsed_time >= 0 and transition_playing:
+		transition_playing = False
+		
+	success, video_image = video.read()
+	if success:
+		video_surf = pygame.image.frombuffer(video_image.tobytes(), video_image.shape[1::-1], "BGR")
+		screen.blit(video_surf, (0, 0))
+	
+	if not success:
+		video.set(cv2.CAP_PROP_POS_FRAMES, 1)
+		
 	if question_current == 0:
 		question_num_text = font_b.render("5 proti 5", True, (255, 255, 255))
 		screen.blit(question_num_text, (960, 64))
@@ -329,16 +393,29 @@ while running:
 	
 	screen.blit(spsse_logo, (40, 40))
 	
-	if question_current != 0:
+	if question_current != 0 and questions_shown:
 		animated_rect.update()
 		animated_rect2.update()
 		animated_rect3.update()
 	
 	animated_img.update()
     
+	if transition_playing:
+		if not transition_audio_playing:
+			audio_channel.play(videos[question_current].sound)
+			transition_audio_playing = True
+			
+		transition_success, transition_video_image = videos[question_current].video.read()
+		
+		if transition_success:
+			transition_video_surf = pygame.image.frombuffer(transition_video_image.tobytes(), transition_video_image.shape[1::-1], "BGR")
+			screen.blit(transition_video_surf, (0, 0))
+	
+	if blackout:
+		screen.fill(blackout)	
+		
 	pygame.display.flip()
 	clock.tick(60)
 	
 ser.close()
 pygame.quit()
-

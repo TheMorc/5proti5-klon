@@ -1,6 +1,7 @@
 ~~# bližší nešpecifikuvaná vec, vóbec to nemá ništ se spšse, vóbec sa do nide nepoužije tak na... 5 minút~~
 # 5 proti 5 (klon na účely stužkovej)
-* jedná sa o neplnohodnotný klon súťaže 5 proti 5 spravený v kombinácií Python (pygame) a Wiring
+* jedná sa o neplnohodnotný a nepresný klon súťaže 5 proti 5 spravený v kombinácií Python a Wiring
+* takisto sa jedná o pokus s knižnicami pygame, opencv, ich kombináciou atď
 * obsahuje laicky povyťahované a poupravované zvuky z ripov na YouTube a z iných zdrojov
 * **nejde o pokus spraviť presnú kópiu súťaže** (či obrazovo, zvukovo alebo priebehom súťaže ako takej)
 * ovládanie prebieha z "režie" človekom pri počítači a dvomi tlačítkami ktoré fungujú po UARTe
@@ -11,6 +12,8 @@
 
 # Credits
 * **RTVS, ABC a CBS za formát ako taký**
+* **[Peťovi](https://trandzik.com) a [Palovi](https://trandzik.sk) Trandžíkovi za inšpiráciu a za to že som mal čo čítať na ich stránkach**
+* **Mariánovi Čurkovi za audio dizajn k 5 proti 5 ktorý som si bez povolenia vyripoval**
 * **ja sebe samému** *(za nápad na program na stužkovú a jeho následnú realizáciu :trollface:)*
 * **triednej profesorke Soni Szalaiovej za to že som dostal na toto povolenie**
 * **Maxovi Brathovi že mi do toho kecal** *(ale v dobrom samozrejme)*
