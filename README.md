@@ -10,6 +10,8 @@
 * pri výrobe tohto veľdiela bol použitý ChatGPT v časoch neistoty a chaosu, vznikol tým chaos ešte väčší
 * na akýkoľvek nespomenutý bod sa ma treba pýtať buď osobne alebo neosobne skrz jeden z dostupných kontaktov
 
+![preview z akcie](https://github.com/TheMorc/5proti5-klon/blob/master/preview.jpg?raw=true)
+
 ## Keybindy
 ### Ovládanie priebehu
 | Klávesa | Funkcia                         |
